@@ -1,0 +1,88 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'groovy'
+    id 'application'
+    id 'java'
+}
+
+application {
+    mainClass = 'com.transaction.Main'
+}
+
+group = 'com.transaction'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.apache.groovy:groovy:5.0.0'
+    implementation 'org.liquibase:liquibase-core:4.27.0'
+    runtimeOnly 'mysql:mysql-connector-java:8.0.33'
+    implementation 'io.helidon.webserver:helidon-webserver:4.0.4'
+    implementation 'io.helidon.webserver:helidon-webserver-cors:4.0.4'
+    implementation 'io.helidon.config:helidon-config-yaml:4.0.4'
+    implementation('io.helidon.http.media:helidon-http-media-jackson:4.0.4')
+    implementation 'io.helidon.logging:helidon-logging-slf4j:4.0.4'
+    implementation 'io.helidon.config:helidon-config-hocon:4.0.4'
+    implementation 'org.jooq:jooq:3.16.11'
+    implementation 'org.jooq:jooq-meta-extensions-liquibase:3.16.11'
+    implementation 'org.jooq:jooq-codegen:3.16.11'
+    implementation 'org.jooq:jooq-meta:3.16.11'
+    implementation 'org.jooq:jooq:3.16.11'
+    implementation 'org.yaml:snakeyaml:2.0'
+    implementation 'org.immutables:value:2.9.3'
+    annotationProcessor 'org.immutables:value:2.9.3'
+    implementation project(":transaction-core")
+    implementation('org.slf4j:slf4j-api:2.0.7')
+    implementation('ch.qos.logback:logback-classic:1.4.11')
+    implementation platform('com.fasterxml.jackson:jackson-bom:2.15.2')
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
+    implementation('com.fasterxml.jackson.datatype:jackson-datatype-jdk8')
+    implementation('com.zaxxer:HikariCP:5.0.1')
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+// Do not force generateJooq on every build; run it explicitly when needed
+// tasks.named('build') {
+//     dependsOn 'generateJooq'
+// }
+
+
+def liquibaseLibDir = "${buildDir}/liquibase-lib"
+tasks.register('copyLiquibaseDriver', Copy) {
+    from {
+        configurations.runtimeClasspath.findAll { it.name.contains("mysql-connector") }
+    }
+    into liquibaseLibDir
+}
+
+//tasks.register('preBuild') {
+//    doLast {
+//        println 'Running pre-build tasks...'
+//    }
+//}
+
+tasks.named('build').configure {
+//    dependsOn 'preBuild'
+    dependsOn 'copyLiquibaseDriver'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'com.transaction.Main'
+        )
+    }
+}
+
+shadowJar {
+    mergeServiceFiles()
+}
