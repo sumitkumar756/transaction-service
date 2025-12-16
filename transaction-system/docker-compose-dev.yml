@@ -1,0 +1,57 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: payment-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-paymentdb_dev}
+      MYSQL_USER: ${MYSQL_USER:-devuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-devpass}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-initdb.d/init-dev.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  liquibase:
+    image: liquibase/liquibase:4.27
+    container_name: database-changelog
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: on-failure
+    command:
+      - --defaultsFile=/liquibase/liquibase.properties
+      - update
+    volumes:
+      - ../build/resources/main/db/changelog/liquibase.properties:/liquibase/liquibase.properties:ro
+      - ../build/resources/main/db/changelog/changelog-main.yaml:/liquibase/changelog-main.yaml
+      - ../build/resources/main/db/changelog/changes:/liquibase/changes
+      - ../build/liquibase-lib:/liquibase/lib:ro
+
+  transaction-service:
+    image: transaction-service
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        ENV: dev
+    depends_on:
+      - mysql
+      - liquibase
+    restart: on-failure
+    environment:
+      ENV: dev
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
+  liquibase-lib:

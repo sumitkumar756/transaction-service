@@ -1,0 +1,4 @@
+CREATE DATABASE IF NOT EXISTS paymentdb_dev;
+CREATE USER IF NOT EXISTS 'devuser'@'%' IDENTIFIED BY 'devpass';
+GRANT ALL PRIVILEGES ON paymentdb_dev.* TO 'devuser'@'%';
+FLUSH PRIVILEGES;

@@ -1,0 +1,1 @@
+CREATE DATABASE IF NOT EXISTS paymentdb;CREATE USER IF NOT EXISTS 'paymentuser'@'%' IDENTIFIED BY 'paymentpass';GRANT ALL PRIVILEGES ON paymentdb.* TO 'paymentuser'@'%';FLUSH PRIVILEGES;
