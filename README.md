@@ -11,8 +11,10 @@ This project is to achieve a technical solution to maintain the purchase and wit
 - **Docker Compose**: For orchestrating MySQL service in different environments.
 - **YAML-based Changelogs**: Use YAML files for defining database changesets.
 - **Background Job Execution**: Run Liquibase migrations as background jobs for non-blocking operations.
-- **Database Initialization**: Environment-specific SQL scripts for initial database setup.
 - **Secure Credential Management**: Recommendations for handling database credentials securely in production.
+- **Microservice Architecture**: Designed to be modular and scalable for future enhancements.
+- **JOOQ for database management**: JOOQ is used for type-safe SQL query construction and execution.
+- **RESTful APIs(Helidon)**: Helidon framework has been used for RESTful API development.
 
 ## 1. Quick Setup & Run
    - **Build and deploy Database with One Command**
