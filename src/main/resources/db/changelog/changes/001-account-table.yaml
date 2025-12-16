@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 001-account-table
-      author: sumit756
+      author: sumitkumar756
       changes:
         - createTable:
             tableName: accounts
